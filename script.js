@@ -5,30 +5,32 @@ let time = document.getElementById("time");
 let orderTime = document.getElementById("orderTime");
 let doneTime = document.getElementById("doneTime");
 let chef = document.getElementById("chef");
+let orderStatus = false;
 
 const meals = ["sushi", "pizza", "burger", "fries"];
 const preparationTime = [2, 10, 12, 5];
 
-function serverResponse() {
+const preparedText = () => {
   doneTime.innerText =
     "Done at " + new Date().toLocaleString() + " Bon Apetite!";
   chef.src = "angry-chef.jpg";
-}
+  console.log("Done");
+};
+const serverResponse = () => {
+  console.log("preparing...");
+  if (orderStatus) {
+    orderStatus = true;
+    clearInterval(serverRequset);
+    preparedText();
+  }
+};
+const throttle = (delaytime) => {
+  setTimeout(() => {
+    orderStatus = true;
+  }, delaytime * 1000);
 
-function throttle(delayTime) {
-  let lastCallTime = 0;
-  return function () {
-    let currentTime = new Date().getTime();
-    if (currentTime - lastCallTime >= delayTime) {
-      lastCallTime = currentTime;
-    }
-  };
-}
-
-function orderMeal(delay) {
-  orderTime.innerText = "You ordered at " + new Date().toLocaleTimeString();
-  setTimeout(serverResponse, delay * 1000);
-}
+  serverRequset = setInterval(serverResponse, 1000);
+};
 
 function clearFields() {
   mystatus.innerText = "";
@@ -36,6 +38,7 @@ function clearFields() {
   orderTime.innerText = "";
   doneTime.innerText = "";
   chef.src = "happy-shef.jpg";
+  orderStatus = false;
 }
 
 buttons.onclick = (e) => {
@@ -44,10 +47,10 @@ buttons.onclick = (e) => {
   let index = meals.indexOf(clickedMeal);
   if (meals.includes(clickedMeal)) {
     clearFields();
-    console.log(meals);
     mystatus.innerText = "Good choice! You want " + clickedMeal;
     time.innerText =
       "Preparing...  It will take " + preparationTime[index] + " seconds";
-    throttle(orderMeal(preparationTime[index]), 1000)();
+    orderTime.innerText = "You ordered at " + new Date().toLocaleTimeString();
+    throttle(preparationTime[index]);
   }
 };
